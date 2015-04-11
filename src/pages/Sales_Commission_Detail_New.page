@@ -1,0 +1,19 @@
+<apex:page standardController="Sales_Commission_Detail__c" tabStyle="Sales_Commission_Detail__c" extensions="Sales_Commission_Detail_Extension" action="{!init}">
+    <apex:sectionHeader title="Sales Commission Detail Edit" subtitle="New Sales Commission Detail"/>
+    <apex:form >
+        <apex:pageBlock title="Sales Commission Plan Edit">
+        <apex:pageMessages />
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Save" action="{!save}"/>
+                <apex:commandButton value="Save & New"/>
+                <apex:commandButton value="Cancel" action="{!cancel}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection >
+                <apex:outputField value="{!scd.Sales_Commission_Plan__c}"/>
+                <apex:outputField value="{!scd.CurrencyIsoCode}"/>
+                <apex:OutputText value=""/>
+                <apex:OutputText value=""/>
+            </apex:pageBlockSection>                    
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

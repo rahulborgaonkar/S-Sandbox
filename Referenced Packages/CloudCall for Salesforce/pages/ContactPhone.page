@@ -1,0 +1,180 @@
+<apex:page id="pg" controller="synety.ContactPhoneController" showHeader="false" sidebar="false" >
+<head>
+    <title>
+        SYNETY: Make a Call
+    </title>
+</head>
+
+<script type="text/javascript">
+    function validateTask()
+    {
+    	//var note = document.getElementById('pg:frm:pgb:txtNote').value;
+        var subject = document.getElementById('pg:frm:pgb:txtSubject').value;
+        
+        if(callStatus == '2')
+    	{
+    		alert('Cannot save the call while the call is still in progress. Please hangup the call and then you can save it.');
+    		return false; 
+    	}
+    	    
+        if({!isNoteRequired})
+        {
+            //if(note == '' || subject == '')
+            if(subject == '')
+            {
+                alert('Please enter notes for this call');
+                return false;
+            }
+        }
+        
+        var cat = document.getElementById('pg:frm:pgb:lstCat').value;
+        if({!isCallCatRequired} && cat == '')
+        {
+            alert('Please select a call category');
+            return false;
+        }
+        
+        canClose = false;
+        
+        /*
+        if({!isNoteRequired} == false && {!isCallCatRequired})
+        {
+        	if(cat == '')
+            {
+                alert('Please select a call category');
+                return false;
+            }
+        }
+        */
+    }
+    
+    var canClose = {!showNotes};
+    var callStatus = '{!JSINHTMLENCODE(callStatus)}';
+    window.onbeforeunload = function(e) 
+    {
+    	if(callStatus == '2')
+    	{
+    		return 'Cannot close this window while the call is still in progress. Please hangup the call and then you can close this window.';
+    	}
+    	
+        //alert('closing');
+        if(({!isNoteRequired} || {!isCallCatRequired})  && canClose && {!isComplete} == false)
+        {
+        	if({!isNoteRequired} && {!isCallCatRequired})
+            	return 'Call notes and Call category are required before you can close this window. Please go back, enter notes and select call category and save the task to close this window.';
+            else if({!isNoteRequired})
+            	return 'Call notes are required before you can close this window. Please go back and enter notes and save the task to close this window.';
+            else
+            	return 'Call category is required before you can close this window. Please go back, enter notes and select call category and save the task to close this window.';
+        }
+    };
+    
+</script>
+    <apex:outputPanel id="panelURL">
+        <script type="text/javascript">
+            canClose = {!showNotes};
+            callStatus = '{!JSINHTMLENCODE(callStatus)}';
+            
+            if("{!isComplete}" == 'true')
+            {
+                if("{!JSINHTMLENCODE(url)}" != '')
+                {
+                    self.resizeTo(screen.width,screen.height);
+                    self.moveTo(0,0);
+                    window.location.href="{!JSINHTMLENCODE(url)}";
+                }
+                else
+                {   
+                    window.close();
+                }
+            }
+        </script>
+    </apex:outputPanel>
+    <apex:pageMessages id="msg"/>
+    <apex:outputpanel rendered="{!isAllSetupDone}">
+        <apex:form id="frm">
+            <apex:actionFunction name="call_Start" action="{!Make_Call_Method}" rerender="callButtons, notes, msg, panelURL" status="status1" />
+            <apex:actionFunction name="call_end" action="{!closecall}" rerender="callButtons, notes, msg, maintable, panelURL" status="status1" />
+            <apex:actionStatus id="status1">
+                <apex:facet name="start">
+                    <div style="width: 500px;">
+                        <img src="/img/loading24.gif" style="vertical-align:middle;"/>
+                        <span style="margin-left: 10px; font-size: 12px; font-weight: bold; color: #000000;">Please wait...</span>
+                    </div>
+                </apex:facet>
+            </apex:actionStatus>
+            
+            <apex:pageBlock id="pgb">
+                <apex:outputLabel value="Call Contact" style="font-weight:bold;font-size:146%;margin-left:15px;"/><br/><br/><br/>
+                <apex:outputLabel value="Click Device" style="font-weight:bold;font-size:115%;margin-left:15px;"/>
+                <apex:selectList size="1" value="{!deviceNum}" style="margin-left:65px;">
+                    <apex:selectOptions value="{!lstDeviceOpt}"/>
+                </apex:selectList><br/><br/><br/>
+                <apex:outputLabel value="Call Number" style="font-weight:bold;font-size:115%;margin-left:15px;"/>
+                <apex:selectList size="1" value="{!phNumber}" style="margin-left:67px;">
+                    <apex:selectOptions value="{!lstSelectOpt}"/>
+                </apex:selectList><br/><br/><br/>
+                <apex:outputPanel id="callButtons">
+                    <table width="100%" id="maintable">
+                        <tr>
+                            <td >
+                                <apex:commandButton value="Cancel" style="margin-left:15px" onclick="window.close();return false;"/>
+                            </td>
+                            <td  align="center">
+                                <apex:outputPanel id="callConnected" rendered="{! (showNotes && !isCallEnd)}">
+                                    <apex:outputLabel value="Call Connected" style="font-size:100%;font-weight:bold;"/>
+                                </apex:outputPanel>
+                                <apex:outputPanel id="callDisconnected" rendered="{!isCallEnd}">
+                                    <apex:outputLabel value="Call Disconnected" style="font-size:100%;font-weight:bold;"/>
+                                </apex:outputPanel>
+                            </td>
+                            <td>
+                                <apex:commandButton id="cmdCall" value="Call" onclick="call_Start();return false;" rendered="{! !showNotes}"/>
+                                <apex:commandButton id="cmdHangup" value="Hangup" onclick="call_end();return false;" rendered="{!  (!isCallEnd && showNotes)}"/>
+                            </td>
+                        </tr>
+                    </table>
+                
+                    <br/>
+                    <br/>
+                    <apex:outputPanel rendered="{!showNotes}" id="notes">
+                        <h4>NOTES</h4>
+                        <hr/>
+                        <table>
+                            <tr>
+                                <td style="font-weight:bold;">Category :</td>
+                                <td >
+                                    <apex:selectList id="lstCat" size="1" value="{!selCat}">
+                                        <apex:selectOptions value="{!lstCallCatOpt}"/>
+                                    </apex:selectList>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold;">Subject :</td>
+                                <td ><apex:inputText id="txtSubject" value="{!taskRec.subject}" style="width:437px;"/></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold;">Notes :</td>
+                                <td><apex:inputTextArea id="txtNote" value="{!taskRec.Description}" rows="4" style="width:435px;" /></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                <center>
+                                    <apex:commandButton value="Save Call" action="{!Close_Task}" onclick="javascript:return validateTask();" />
+                                    &nbsp;
+                                    <apex:commandButton value="Save Call & Create followup Task" action="{!SaveCall_Task}" onclick="javascript:return validateTask();" />
+                                    &nbsp;
+                                    <apex:commandButton value="Save Call & Create followup Event" action="{!SaveCall_Event}" onclick="javascript:return validateTask();" />
+                                </center>
+                                </td>
+                            </tr>
+                        </table>
+                    </apex:outputPanel>
+                </apex:outputPanel>
+            </apex:pageBlock>
+        </apex:form>
+    </apex:outputpanel>
+    <script type="text/javascript">
+        self.resizeTo(700, 550);
+    </script>
+</apex:page>

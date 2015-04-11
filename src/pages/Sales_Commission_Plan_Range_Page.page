@@ -1,0 +1,27 @@
+<apex:page standardController="Sales_Commission_Plan__c" tabStyle="Sales_Commission_Plan__c" extensions="Sales_Commission_Plan_Extension" action="{!rangeInit}">
+    <apex:sectionHeader title="Sales Telesales Detail Edit" subtitle="New Sales Telesales Detail">
+        <apex:form >
+            <apex:pageBlock title="Sales Telesales Detail Edit" mode="edit">
+                <apex:pageBlockButtons >
+                    <apex:commandButton id="saveid" value="Save" action="{!saveTelesalesDetails}"/>
+                    <apex:commandButton id="cancelid" immediate="true" value="Cancel" action="{!cancelTelesalesDetails}"/>
+                </apex:pageBlockButtons>
+
+                <apex:pageBlockSection >
+                    <apex:outputField value="{!scd.Partner_Types__c}"/>
+                    <apex:pageBlockSectionItem />
+                    <apex:outputField value="{!scd.Event__c}"/>
+                    <apex:pageBlockSectionItem />
+                    <apex:inputField value="{!std.Minimum__c}" required="true"/>
+                    <apex:pageBlockSectionItem />
+                    <apex:inputField value="{!std.Maximum__c}" required="true"/>
+                    <apex:pageBlockSectionItem />
+                    <apex:inputField value="{!std.Amount__c}" required="true" rendered="{!amountTrue}"/>
+                    <apex:pageBlockSectionItem rendered="{!amountTrue}"/>
+                    <apex:inputField value="{!std.Percentage__c}" required="true" rendered="{!percentTrue}"/>
+                    <apex:pageBlockSectionItem rendered="{!percentTrue}"/>
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+        </apex:form>
+    </apex:sectionHeader>
+</apex:page>

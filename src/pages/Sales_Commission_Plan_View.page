@@ -1,0 +1,152 @@
+<apex:page standardController="Sales_Commission_Plan__c" tabStyle="Sales_Commission_Plan__c" extensions="Sales_Commission_Plan_Extension">
+    <apex:sectionHeader title="Sales Commission Plan" subtitle="{!scp.name}"/>
+    <apex:form id="mainid">
+        <apex:pageMessages />
+        <apex:actionfunction action="{!selectFunctionMethod}" name="selectFunction" reRender="detailblock,commissionblock">
+            <apex:param assignto="{!sales_commission_detail_id}" name="param1" value=""/>
+        </apex:actionfunction>
+
+        <apex:actionfunction action="{!actionFunctionMethod}" name="actionFunction" reRender="fieldblock">
+            <apex:param assignto="{!Partner_Types}" name="param1" value=""/>
+            <apex:param assignto="{!Event}" name="param2" value=""/>
+            <apex:param assignto="{!SubEvent}" name="param3" value=""/>
+            <apex:param assignto="{!Frequencies}" name="param4" value=""/>
+            <apex:param assignto="{!Commissions_Types}" name="param5" value=""/>
+        </apex:actionfunction>
+
+        <apex:actionfunction action="{!eventFunctionMethod}" name="eventFunction" reRender="fieldblock">
+            <apex:param assignto="{!Partner_Types}" name="param1" value=""/>
+            <apex:param assignto="{!Event}" name="param2" value=""/>
+        </apex:actionfunction>
+
+        <apex:pageBlock title="Sales Commission Plan Edit" mode="maindetail">
+            <apex:pageBlockButtons >
+                <apex:commandButton id="editid" value="Edit" action="{!edit}"/>
+                <apex:commandButton id="deleteid" value="Delete" onclick="if(!confirm('Are you sure?')) return false;" action="{!delete}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="showField1">
+                <apex:outputField value="{!scp.name}"/>
+                <apex:outputField label="Owner" value="{!scp.OwnerId}"/>
+                <apex:outputField value="{!scp.CreatedById}">
+                    <apex:outputText value=", {0,date,M/d/yyyy h:mm a}">
+                        <apex:param value="{!scp.CreatedDate}"></apex:param>
+                    </apex:outputText>
+                </apex:outputField>
+                <apex:outputField value="{!scp.LastModifiedById}">
+                    <apex:outputText value=", {0,date,M/d/yyyy h:mm a}">
+                        <apex:param value="{!scp.LastModifiedDate}"></apex:param>
+                    </apex:outputText>
+                </apex:outputField>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Sales Partner Details" mode="edit" id="fieldblock">
+
+            <apex:pageBlockSection >
+                <apex:inputField value="{!spt.Partner_Types__c}" id="pt_id"/>
+                <apex:inputField value="{!spt.Event__c}" id="ev_id" onchange="eventScript('{!$Component.pt_id}', '{!$Component.ev_id}')"/>
+                
+                <apex:inputField value="{!spt.Sub_Event__c}" id="sbev_id" rendered="{!(if(noOtherFields==true, true, false))}"/>
+                <apex:pageBlockSectionItem rendered="{!(if(noOtherFields==true, true, false))}"/>
+
+                <apex:inputField value="{!spt.Frequencies__c}" id="fr_id"/>
+                <apex:inputField value="{!spt.Commissions_Types__c}" id="ct_id" onchange="actionScript('{!$Component.pt_id}', '{!$Component.ev_id}', '{!$Component.sbev_id}', '{!$Component.fr_id}', '{!$Component.ct_id}')"/>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Add" action="{!addDetail}"/>
+            </apex:pageBlockButtons>
+
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Single Event Commission Details" mode="edit" id="onetimeblock"  rendered="{!(if(oneTimeRendered == true, true, false))}">
+            <apex:pageBlockTable value="{!OneTimeDetails}" var="ot">
+                <apex:column headerValue="Action" width="5">
+                    <apex:commandLink action="{!doNothing}" onclick="window.open('/apex/Sales_Commission_Plan_OneTime_Page?id={!scp.id}&scdid={!ot.id}', '_parent', 'menubar=1, toolbar=1, scrollbars=1,resizable=yes'); return false;" style="font-weight:normal;color:blue">Edit
+                    </apex:commandLink>&nbsp;|&nbsp;
+                    <apex:commandLink action="{!deleteDetail}" style="font-weight:normal;color:blue" onclick="if(!confirm('Are you sure?')) return false;">Del
+                        <apex:param value="{!ot.Id}" name="idToDel" assignTo="{!detailId}"/>
+                    </apex:commandLink>
+                </apex:column>
+
+                <apex:column value="{!ot.Partner_Types__c}"/>
+                <apex:column value="{!ot.Event__c}"/>
+                <apex:column value="{!ot.Sub_Event__c}"/>
+                <apex:column value="{!ot.Frequencies__c}"/>
+                <apex:column value="{!ot.Commissions_Types__c}"/>
+                <apex:column headerValue="Value" value="{!(if(ot.Unit_Sign__c=='£', 'GBP', ''))} {!ot.Value__c} {!(if(ot.Unit_Sign__c=='%', '%', ''))} {!(if(ot.Unit_Sign__c=='L', 'Licenses', ''))}"/>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Ranged Event Details" mode="edit" id="detailblock" rendered="{!renderList}">
+            <apex:pageBlockTable value="{!MultipleTimeDetails}" var="mt">
+                <apex:column width="5" headerValue="Action" >
+                    <apex:commandLink action="{!deleteDetail}" style="font-weight:normal;color:blue" onclick="if(!confirm('Are you sure?')) return false;">Del
+                        <apex:param value="{!mt.Id}" name="idToDel" assignTo="{!detailId}"/>
+                    </apex:commandLink>
+                </apex:column>
+
+                <apex:column width="10" headerValue="Select Record">
+                   <apex:inputCheckbox value="{!mt.Selected_Record__c}" id="sl_id" onchange="selectScript('{!mt.id}')"/>
+                </apex:column>
+                <apex:column value="{!mt.Partner_Types__c}"/>
+                <apex:column value="{!mt.Event__c}"/>
+                <apex:column value="{!mt.Sub_Event__c}"/>
+                <apex:column value="{!mt.Frequencies__c}"/>
+                <apex:column value="{!mt.Commissions_Types__c}"/>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+
+        <apex:pageBlock title="Ranged Details - {!scd.Partner_Types__c}>{!scd.Event__c}" mode="edit" id="commissionblock" rendered="{!renderList}">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="New" onclick="window.open('/apex/Sales_Commission_Plan_Range_Page?id={!scp.id}', '_parent', 'menubar=1, toolbar=1, scrollbars=1,resizable=yes'); return false;"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockTable value="{!CommissionDetails}" var="commission">
+                <apex:column headerValue="Action" width="10">
+                    <apex:commandLink action="{!doNothing}" onclick="window.open('/apex/Sales_Commission_Plan_Range_Page?id={!scp.id}&commid={!commission.id}', '_parent', 'menubar=1, toolbar=1, scrollbars=1,resizable=yes'); return false;" style="font-weight:normal;color:blue">Edit
+                        <apex:param value="{!commission.Id}" name="idToEdit" assignTo="{!commissionId}"/>
+                    </apex:commandLink>&nbsp;|&nbsp;
+                    <apex:commandLink action="{!deleteRangeRecord}" style="font-weight:normal;color:blue" onclick="if(!confirm('Are you sure?')) return false;">Del
+                        <apex:param value="{!commission.Id}" name="idToDel" assignTo="{!commissionId}"/>
+                    </apex:commandLink>
+                </apex:column>
+                <apex:column headerValue="Event" value="{!commission.Sales_Commission_Detail__r.Event__c}"/>
+                <apex:column headerValue="Minimum User" value="{!commission.Minimum__c}"/>
+                <apex:column headerValue="Maximum User" value="{!commission.Maximum__c}"/>
+                <apex:column headerValue="Amount (£)" value="GBP {!commission.Amount__c}" rendered="{!amountTrue}"/>
+                <apex:column headerValue="Percent (%)" value="{!commission.Percentage__c} %" rendered="{!percentTrue}"/>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    
+    </apex:form>
+
+
+    <script>
+    function selectScript(selected_id)
+    {
+        selectFunction(selected_id);
+    }
+    </script>
+
+    <script>
+    function eventScript(pt_id, ev_id)
+    {
+        var partner_types = document.getElementById(pt_id).value;
+        var event = document.getElementById(ev_id).value;
+        eventFunction(partner_types, event);
+    }
+    </script>
+
+
+    <script>
+    function actionScript(pt_id, ev_id, sbev_id, fr_id, ct_id)
+    {
+        var partner_types = document.getElementById(pt_id).value;
+        var event = document.getElementById(ev_id).value;
+        var subevent = document.getElementById(sbev_id).value;
+        var frequencies = document.getElementById(fr_id).value;
+        var commission_types = document.getElementById(ct_id).value;
+        actionFunction(partner_types, event, subevent, frequencies, commission_types);
+    }
+    </script>
+</apex:page>

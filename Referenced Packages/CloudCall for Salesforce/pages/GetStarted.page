@@ -1,0 +1,48 @@
+<apex:page >
+<html  lang="en">
+    <head>
+    
+
+    <title>Getting started - SYNETY CloudCall Click for Salesforce</title>
+
+
+    
+</head>
+
+
+<body>
+    <apex:image value="{!URLFOR($Resource.synety__synety_logo)}"/>
+<!-- Body content row -->
+
+<div style="font-family:  'Lucida Sans'; padding-right: 30px; padding-left: 30px; padding-top: 30px;">
+<strong style="font-size:large">Thank you for installing CloudCall Click for Salesforce.</strong>
+
+<br /><br />
+    <div style="font-size:medium">
+    Next Steps: 
+    </div>
+
+    <ul style="font-size:small">
+    1. New to SYNETY CloudCall?  If you haven't already signed up for a CloudCall account, 
+        please either signup at 
+        <a target="_blank" href="https://www.synety.com/cloudcallclick/salesforce">https://www.synety.com/cloudcallclick/salesforce</a> 
+        and click on the "Activate Now" button or call +44 113 416 6003 where our sales team will be happy to activate you.
+    </ul>
+    <ul style="font-size:small">
+    2. Once activated, you will need to add your users into Salesforce which you can do by either following our Quick Start Guide
+  Which can be downloaded at 
+        <a target="_blank" href="https://www.synety.com/support/how-to/PDFfiles/cloudcall_click_dynamics_quick_start.pdf">https://www.synety.com/support/how-to/PDFfiles/cloudcall_click_dynamics_quick_start.pdf</a>
+            or by calling our Support Team on +44 113 416 6028 , who will be happy to talk you through this quick process.
+
+    </ul>
+
+
+
+
+</div>
+
+
+        
+
+</body></html>
+</apex:page>

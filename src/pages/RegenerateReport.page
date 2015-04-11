@@ -1,0 +1,27 @@
+<apex:page action="{!init}" controller="CommissionReportController" Title="Regenerate Monthly Commission Report">
+<apex:form >
+	<apex:sectionHeader title="Regenerate Monthly Commission Report"/>
+	<apex:pageMessages />
+    <apex:pageBlock >
+        <apex:pageblockbuttons >
+            <apex:commandbutton value="Regenerate Report and Email" action="{!GenerateReport}"  />
+            <apex:commandbutton value="Regenerate Report and Export" onclick="javascript:exportReport();return false;"  />            
+        </apex:pageblockbuttons>
+        <apex:pageBlockSection columns="1" id="pgbs" >
+			<apex:selectList id="lstMonth" value="{!selMonth}" size="1" Label="Select Month">
+			    <apex:selectOptions value="{!lstMonths}"/>
+			</apex:selectList>
+		</apex:pageBlockSection>
+    </apex:pageBlock>
+<script>
+	function exportReport()
+	{
+		var selMonth = document.getElementById('j_id0:j_id1:j_id30:pgbs:lstMonth').value;
+		if(selMonth == '')
+			alert('Please select a month to generate report for.');
+		else
+			window.open('/apex/reGenerateEmailAndExport?month='+selMonth);
+	}
+</script>    
+</apex:form>
+</apex:page>

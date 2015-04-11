@@ -1,0 +1,34 @@
+<apex:page standardController="Sales_Commission_Plan__c" tabStyle="Sales_Commission_Plan__c" extensions="Sales_Commission_Plan_Extension" action="{!oneTimeInit}">
+    <apex:sectionHeader title="Sales Telesales Detail Edit" subtitle="New Sales Telesales Detail">
+        <apex:form >
+            <apex:pageBlock title="Sales Telesales Detail Edit" mode="edit">
+                <apex:pageBlockButtons >
+                    <apex:commandButton id="saveid" value="Save" action="{!saveOneTime}"/>
+                    <apex:commandButton id="cancelid" immediate="true" value="Cancel" action="{!cancelOneTime}"/>
+                </apex:pageBlockButtons>
+
+                <apex:pageBlockSection >
+                    <apex:outputField value="{!scd.Partner_Types__c}"/>
+                    <apex:pageBlockSectionItem />
+                    <apex:outputField value="{!scd.Event__c}"/>
+                    <apex:pageBlockSectionItem />
+                    <apex:outputField value="{!scd.Sub_Event__c}" rendered="{!if((scd.Sub_Event__c != null), true, false)}"/>
+                    <apex:pageBlockSectionItem rendered="{!if((scd.Sub_Event__c != null), true, false)}"/>
+                    <apex:outputField value="{!scd.Frequencies__c}"/>
+                    <apex:pageBlockSectionItem />
+                    <apex:outputField value="{!scd.Commissions_Types__c}"/>
+                    <apex:pageBlockSectionItem />
+                    <apex:pageBlockSectionItem >
+                        <apex:outputPanel >
+                            <apex:outputLabel value="Licenses" for="valid" rendered="{!if((scd.Unit_Sign__c == 'L'), true, false)}"/>
+                            <apex:outputLabel value="Percent" for="valid" rendered="{!if((scd.Unit_Sign__c == '%'), true, false)}"/>
+                            <apex:outputLabel value="Amount" for="valid" rendered="{!if((scd.Unit_Sign__c == '£'), true, false)}"/>
+                        </apex:outputPanel>
+                        <apex:inputField value="{!scd.Value__c}" id="valid"/>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem />
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+        </apex:form>
+    </apex:sectionHeader>
+</apex:page>

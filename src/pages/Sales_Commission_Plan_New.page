@@ -1,0 +1,20 @@
+<apex:page standardController="Sales_Commission_Plan__c" tabStyle="Sales_Commission_Plan__c" extensions="Sales_Commission_Plan_Extension">
+    <apex:sectionHeader title="Sales Commission Plan Edit" subtitle="New Sales Commission Plan"/>
+    <apex:form id="allpage">
+        <apex:pageBlock title="Sales Commission Plan Edit" mode="edit">
+        <apex:pageMessages id="error"/>
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton value="Save" action="{!save}"/>
+                <apex:commandButton value="Cancel" action="{!cancel}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="showField1">
+                <apex:inputField value="{!scp.name}"/>
+                <apex:outputField label="Owner" value="{!scp.OwnerId}"/>
+                <apex:inputField value="{!scp.CurrencyIsoCode}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+
+
+    </apex:form>
+
+</apex:page>

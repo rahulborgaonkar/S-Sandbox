@@ -1,0 +1,3 @@
+<apex:page standardController="PortaBilling__c" extensions="PortaBillingController" action="{!autoRun}">
+    <apex:pageMessages />
+</apex:page>

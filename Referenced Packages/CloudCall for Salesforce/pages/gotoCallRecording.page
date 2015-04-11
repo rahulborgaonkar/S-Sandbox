@@ -1,0 +1,9 @@
+<apex:page controller="synety.gotoCallRecordingController" action="{!init}" showHeader="false" sidebar="false">
+  
+  <apex:outputLabel rendered="{!isEnabled && isAvailable}">You have call recording enabled<br/></apex:outputLabel>
+  <apex:outputLabel rendered="{!not(isAvailable)}">Call recording is NOT available for this activity<br/></apex:outputLabel>
+  <apex:outputpanel rendered="{!NOT(isEnabled)}">
+      Call Recording has NOT been enabled for you<br/>
+      To have Call Recording enabled please visit <a href="https://www.synety.com">www.synety.com</a><br/>
+  </apex:outputpanel>
+</apex:page>

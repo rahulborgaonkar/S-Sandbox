@@ -1,0 +1,38 @@
+<apex:page title="SYNETY: Edit Configuration" standardController="synety__Synety_Configuration__c" extensions="synety.SynetyConfigViewPageController" id="pg" tabstyle="synety__Synety_Configuration__c">
+   
+    <apex:form id="frm">
+    <apex:sectionHeader title="Synety Configuration Edit" SubTitle="Edit Synety Configuration" rendered="{!NOT(isNew)}"/>
+    <apex:sectionHeader title="Synety Configuration Edit" SubTitle="New Synety Configuration" rendered="{!isNew}"/>
+        <apex:pageMessages />
+        <apex:pageBlock title="Synety Configuration Edit" id="pgbView" >
+            <apex:pageBlockButtons id="pbButtonsView">
+                <apex:commandButton value="Save" action="{!saveRecord}" id="saveButton" />
+                <apex:commandButton action="{!cancelRecord}" value="Cancel" id="cancelButton" immediate="true"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="1" id="pgbs" >
+                <apex:outputText Label="Salesforce User" value="{!userName}" rendered="{!NOT(isNew)}"/>
+                <apex:selectList rendered="{!isNew}" required="true" value="{!configRecord.Name}" size="1" Label="User" style="width:300px">
+		            <apex:selectOptions value="{!UserList}"/>
+		        </apex:selectList>
+                
+                
+                <apex:inputField required="true" value="{!configRecord.synety__LicenseKey__c}" style="width:300px"/>
+                
+                <apex:inputField required="true" value="{!configRecord.synety__UserName__c}" style="width:300px"/>
+                
+                <apex:inputField required="true" value="{!configRecord.synety__Customer_Login_Email__c}" style="width:300px"/>
+                
+                <apex:inputField required="true" value="{!configRecord.synety__OAuthKey__c}" style="width:300px"/>
+                
+                <apex:inputField required="true" value="{!configRecord.synety__OAuthSecret__c}" style="width:300px"/>
+                
+                <apex:inputField value="{!configRecord.synety__Call_Notes_Mandatory__c}"/>
+                
+                <apex:inputField value="{!configRecord.synety__Call_Category_Mandatory__c}"/>
+                
+                <apex:outputField value="{!configRecord.CreatedById}" rendered="{!NOT(isNew)}"/>
+                <apex:outputField value="{!configRecord.LastModifiedDate}" rendered="{!NOT(isNew)}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

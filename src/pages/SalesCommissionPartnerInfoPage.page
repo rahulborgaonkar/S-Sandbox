@@ -1,0 +1,85 @@
+<apex:page standardController="Opportunity" tabStyle="Opportunity" extensions="SalesCommissionPartnerInfoExtension">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"/>
+    <apex:form id="mainid">
+    <apex:pagemessages />
+        <apex:pageBlock mode="maindetail" id="pgb">
+            <apex:pageBlockSection id="pgs">
+
+                <apex:pageBlockSectionItem id="item1" >
+                    <apex:outputLabel value="Telesales Partner" for="tp_id"/>
+                    <apex:panelGroup id="pg" >
+                        <apex:outputField value="{!opportunity.Telesales_Partner__c}" id="tp_id">
+                            <apex:inlineEditSupport showOnEdit="saveButton, cancelButton" hideOnEdit="calculateButton" event="ondblclick" changedStyleClass="myBoldClass" resetFunction="resetInlineEdit"/>
+                            <script>$("#j_id0_mainid_pgb_pgs_item1_tp_id_ileinner").children("a").attr("href", "#").attr("onfocus", '').attr("onmouseover",'');</script>
+                        </apex:outputField>
+                        <apex:outputLabel value="Commission Applicable? " for="tp_id2" style="font-weight:bold;font-family:Arial,Helvetica,sans-serif;" />
+                        <apex:inputField value="{!opportunity.Telesales_Partner_Commission_Flag__c}" id="tp_id2" onchange="selectFlag()"/>
+                    </apex:panelGroup>
+                </apex:pageBlockSectionItem>
+
+                <apex:outputField value="{!opportunity.Telesales_Partner_Commission__c}" id="tpc_id">
+                    <apex:inlineEditSupport showOnEdit="saveButton, cancelButton" hideOnEdit="calculateButton" event="ondblclick" changedStyleClass="myBoldClass" resetFunction="resetInlineEdit"/>
+                </apex:outputField>
+                
+                <apex:pageBlockSectionItem id="item2" >
+                    <apex:outputLabel value="Channel Sales Partner" for="cp_id" />
+                    <apex:panelGroup >
+                        <apex:outputField value="{!opportunity.Channel_Sales_Partner__c}" id="cp_id" >
+                            <apex:inlineEditSupport showOnEdit="saveButton, cancelButton" hideOnEdit="calculateButton" event="ondblclick" changedStyleClass="myBoldClass" resetFunction="resetInlineEdit"/>
+                            <script>$("#j_id0_mainid_pgb_pgs_item2_cp_id_ileinner").children("a").attr("href", "#").attr("onfocus", '').attr("onmouseover",''); </script>
+                        </apex:outputField>
+                        <apex:outputLabel value="Commission Applicable? " for="cp_id2" style="font-weight:bold;font-family:Arial,Helvetica,sans-serif;" />
+                        <apex:inputField value="{!opportunity.Channel_Sales_Partner_Commission_Flag__c}" id="cp_id2" onchange="selectFlag()"/>
+                    </apex:panelGroup>
+                </apex:pageBlockSectionItem>
+
+                <apex:outputField value="{!opportunity.Channel_Sales_Partner_Commission__c}" id="cspc_id"/>
+
+                <apex:pageBlockSectionItem id="item3" >
+                    <apex:outputLabel value="Referral Partner" for="rp_id" />
+                    <apex:panelGroup >
+                        <apex:outputField value="{!opportunity.Referral_Partner__c}" id="rp_id" >
+                            <apex:inlineEditSupport showOnEdit="saveButton, cancelButton" hideOnEdit="calculateButton" event="ondblclick" changedStyleClass="myBoldClass" resetFunction="resetInlineEdit"/>
+                            <script>$("#j_id0_mainid_pgb_pgs_item3_rp_id_ileinner").children("a").attr("href", "#").attr("onfocus", '').attr("onmouseover",''); </script>
+                        </apex:outputField>
+                        <apex:outputLabel value="Commission Applicable? " for="rp_id2" style="font-weight:bold;font-family:Arial,Helvetica,sans-serif;" />
+                        <apex:inputField value="{!opportunity.Referral_Partner_Commission_Flag__c}" id="rp_id2" onchange="selectFlag()"/>
+                    </apex:panelGroup>
+                </apex:pageBlockSectionItem>
+
+                <apex:outputField value="{!opportunity.Referral_Partner_Commission__c}" id="rpc_id"/>
+                            
+                <apex:pageBlockSectionItem id="item4" >
+                    <apex:outputLabel value="CRM Integrator Partner" for="crp_id" />
+                    <apex:panelGroup >
+                        <apex:outputField value="{!opportunity.CRM_Integrator_Partner__c}" id="crp_id" >
+                            <apex:inlineEditSupport showOnEdit="saveButton, cancelButton" hideOnEdit="calculateButton" event="ondblclick" changedStyleClass="myBoldClass" resetFunction="resetInlineEdit"/>
+                            <script>$("#j_id0_mainid_pgb_pgs_item4_crp_id_ileinner").children("a").attr("href", "#").attr("onfocus", '').attr("onmouseover",''); </script>
+                        </apex:outputField>
+                        <apex:outputLabel value="Commission Applicable? " for="crp_id2" style="font-weight:bold;font-family:Arial,Helvetica,sans-serif;" />
+                        <apex:inputField value="{!opportunity.CRM_Integrator_Partner_Commission_Flag__c}" id="crp_id2" onchange="selectFlag()"/>
+                    </apex:panelGroup>
+                </apex:pageBlockSectionItem>
+
+                <apex:outputField value="{!opportunity.CRM_Integrator_Partner_Commission__c}" id="cipc_id"/>
+
+            </apex:pageBlockSection>
+
+            <apex:pageBlockButtons location="bottom" >
+                <apex:commandButton id="saveButton" value="Save" style="display: none;" action="{!saveSalesCommissionPartner}" />
+                <apex:commandButton id="cancelButton" value="Cancel" style="display: none;" action="{!cancelSalesCommissionPartner}" />  
+                <apex:commandButton id="calculateButton" value="Calculate Commission" action="{!calculateSalesCommission}"/>
+                <script type="text/javascript">
+                function selectFlag()
+                {
+                    document.getElementById('{!$Component.saveButton}').style.display = 'inline';
+                    document.getElementById('{!$Component.cancelButton}').style.display = 'inline-block';
+                    document.getElementById('{!$Component.calculateButton}').style.display = 'none';
+                }
+                </script>
+            </apex:pageBlockButtons> 
+            
+        </apex:pageBlock>
+
+    </apex:form>
+</apex:page>
