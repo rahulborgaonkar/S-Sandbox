@@ -1,0 +1,164 @@
+#!/bin/bash
+#--get_previous_days_audittrails.bash--#
+
+get_previous_days_audittrails()
+{
+echo StartTime `date`
+echo ""
+
+cat /dev/null > $DATEFILE
+cat /dev/null > $CUSTCREDFILE
+cat /dev/null > $CUSTOMERFILE
+cat /dev/null > $AUDITTRAILFILE
+cat /dev/null > $FINALFILE
+
+export get_customer="?method=customer"
+
+echo 'Date not found as an argument'
+export stdate=`date -d "yesterday" '+%Y-%m-%d'`
+export eddate=`date '+%Y-%m-%d'`
+echo $stdate","$eddate > $DATEFILE
+type=1
+
+echo "The data will be fetched for following date range"
+cat $DATEFILE
+echo ""
+
+URL=`echo $APIURL$get_customer`
+
+curl $URL -H $synety_username -H $synety_password -H $synety_licensekey -o $CUSTOMERFILE -s -k
+
+cat $CUSTOMERFILE | sed -e 's/\[//g' -e 's/\]//g' -e 's/{//g' -e 's/}//g' -e 's/"//g' |  awk '{n=split($0,a,","); for (i=1; i<=n; i++) print a[i]}' | grep -w Login | cut -d : -f 2 | grep -v null | sort > $CUSTCREDFILE
+
+echo "First Leg - Get Data From SYNETY API"
+echo ""
+
+for lname in `cat $CUSTCREDFILE`
+#for lname in `cat $CUSTCREDFILE | egrep 'mark.seemann@synety.com|vb@rapid-sales-solutions.co.uk'`
+#for lname in `cat $CUSTCREDFILE | egrep 'mark.seemann@synety.com'`
+#for lname in `cat $CUSTCREDFILE | egrep 'vb@rapid-sales-solutions.co.uk'`
+#for lname in `cat $CUSTCREDFILE | egrep 'abby@abmarketingservices.co.uk|vb@rapid-sales-solutions.co.uk'`
+do
+        echo "Finding Customer Details for Login - "$lname
+        echo ""
+        export startdate=""
+        export enddate=""
+
+        for dateval in `cat $DATEFILE`
+        do
+                startdate=`echo $dateval | cut -d "," -f 1`
+                enddate=`echo $dateval | cut -d "," -f 2`
+                echo "Fetching Data from "$startdate" To "$enddate
+                echo ""
+
+                URL=`echo $ATCURL'?from='$startdate'&to='$enddate'&login='$lname`
+                echo $URL
+                echo ""
+
+                curl $URL -H $synety_username -H $synety_password -H $synety_licensekey -o $AUDITTRAILDATA -s -k
+
+                returnVal=`cat $AUDITTRAILDATA | wc -m`
+
+                if [ $returnVal -ne 2 ]
+                then
+                        echo "Audit Trail Found for "$lname
+                        echo ""
+
+                        cat $AUDITTRAILDATA | awk '{
+                                                        gsub(/\[/,"");
+                                                        gsub(/\]/,"");
+                                                        n=split($0,a,"},");
+                                                        for (i=1; i<=n; i++)
+                                                        {
+                                                                sub(/^\{/, "", a[i]);
+                                                                sub(/\}$/, "", a[i]);
+                                                                m=split(a[i],b,",");
+                                                                sub(/FromDate/, "RequestStart", b[2]);
+                                                                sub(/-[0-9]*T00:00:00/, "-01", b[2]);
+                                                                sub(/-[0-9]*T00:00:00/, "-01", b[3]);
+                                                                split(b[5],c,":");
+                                                                b[5]=sprintf("%s:%s", c[1],toupper(c[2]));
+                                                                printf("%s,%s,%s,%s|%s\n", b[1],b[6],b[5],b[2],b[4]);
+                                                        }
+                                                }' >> $AUDITTRAILFILE
+
+                        echo "AUDITTRAILFILE record count - "`cat $AUDITTRAILFILE | sed '/^$/d' | wc -l`
+                        echo ""
+                fi
+                done
+done
+cat $AUDITTRAILFILE
+
+cat /dev/null > $AUDITTRAILDATA
+
+cat $AUDITTRAILFILE | sort | cut -d'|' -f1 | uniq > $KEYVALUE
+for key in `cat $KEYVALUE`
+do
+        grep $key $AUDITTRAILFILE | awk -v type=$type 'BEGIN{ sum = 0; }
+                                        {
+                                                n=split($0,a,"|");
+                                                m=split(a[2],b,":");
+                                                sum += b[2];
+                                        } END { printf("{%s,\"Type\":%d,%s:%s},", a[1],type,b[1],sum) }' >> $AUDITTRAILDATA
+done
+
+cat $AUDITTRAILDATA | sed -e 's/,$/\n/g' > $FINALFILE
+cat $FINALFILE
+echo ""
+
+echo "Second Leg - Put Data To Salesforce"
+echo ""
+
+if [ -f $FINALFILE ]
+then
+        noofrecs=`cat $FINALFILE | wc -l`
+
+        if [ $noofrecs -gt 0 ]
+        then
+                echo "Records found"
+                echo '{"APIAuditTrail":['`cat $FINALFILE`']}' > $FINALFILE
+
+                echo "JSON Output to Salesforce"
+                cat $FINALFILE
+                echo ""
+
+                echo $TOKENURL
+                echo ""
+
+                curl $TOKENURL -d "grant_type=password" -d "client_id=$sf_client_id" -d "client_secret=$sf_client_secret" -d "username=$sf_username" -d "password=$sf_password" -o $AUTHVALUE -s
+                sf_sessionId=`cat $AUTHVALUE | sed 's/[{}]/''/g' | awk -v RS=',"' -F: '/^access_token/{print $2}' | sed 's/\(^"\|"$\)//g'`
+
+                echo "Session Id - "$sf_sessionId
+                echo ""
+
+                curl -H "Authorization: Bearer $sf_sessionId" -H "Content-Type: application/json" -d @final.txt $CLASSURL -s
+                echo ""
+        else
+                echo "No Records generated to Update Audit Trails"
+                echo ""
+        fi
+else
+        echo "No Records generated to Update Audit Trails"
+        echo ""
+fi
+
+echo EndTime `date`
+}
+
+NOW=`date '+%Y%m%d%H%M'`
+FILENM=`echo $0`
+
+#. /home/rahul/audit_trails/credentials-input-test-output-prod.bash
+#. /home/rahul/audit_trails/credentials-test.bash
+. /home/rahul/audit_trails/credentials-prod.bash
+
+logfl=$HOME'/audit_trails/log/'`basename $FILENM | sed -e 's/.bash/_/g'`$NOW.log
+
+old_IFS=$IFS
+IFS=$'\n'
+
+get_previous_days_audittrails > $logfl
+
+old_IFS=$IFS
+
+exit
